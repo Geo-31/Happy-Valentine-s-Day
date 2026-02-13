@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine?</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+body {
+font-family: 'Playfair Display', serif;
+background-color: #f0f7ff;
+background-image: url('https://www.transparenttextures.com/patterns/soft-wallpaper.png');
+background-size: cover;
+background-blend-mode: overlay;
+overflow: hidden;
+margin: 0;
+height: 100vh;
+}
+.font-cursive { font-family: 'Great Vibes', cursive; }
+
+.floating-heart {
+position: absolute;
+color: rgba(186, 230, 253, 0.6);
+font-size: 2.5rem;
+animation: floatUp linear infinite;
+pointer-events: none;
+z-index: 0;
+}
+@keyframes floatUp {
+0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+10% { opacity: 0.5; }
+90% { opacity: 0.5; }
+100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+.stage {
+position: absolute;
+inset: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+opacity: 0;
+pointer-events: none;
+z-index: 10;
+}
+.stage.active {
+opacity: 1;
+pointer-events: auto;
+}
+
+/* Password Input Styling */
+.pass-input {
+    background: white;
+    border: 2px solid #3b82f6;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+    width: 150px;
+    outline: none;
+}
+
+.envelope-wrapper {
+position: relative;
+width: 18rem;
+height: 12rem;
+cursor: pointer;
+transition: transform 0.3s ease;
+}
+.envelope-wrapper:hover { transform: scale(1.05); }
+
+.envelope-back {
+position: absolute;
+inset: 0;
+background-color: #2563eb;
+border-radius: 0.375rem;
+box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.25);
+}
+
+.letter-peeking {
+position: absolute;
+left: 1rem;
+right: 1rem;
+top: 10px;
+height: 90%;
+background-color: #fdfbf7;
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+display: flex;
+flex-direction: column;
+align-items: center;
+padding-top: 1rem;
+padding-left: 0.5rem;
+padding-right: 0.5rem;
+transition: all 0.8s ease-in-out;
+z-index: 5;
+cursor: pointer;
+}
+
+.flap {
+position: absolute;
+width: 0; height: 0;
+z-index: 10;
+pointer-events: none;
+}
+.flap-left {
+top: 0; left: 0;
+border-top: 96px solid transparent;
+border-left: 144px solid #3b82f6;
+border-bottom: 96px solid transparent;
+border-top-left-radius: 0.375rem;
+border-bottom-left-radius: 0.375rem;
+}
+.flap-right {
+top: 0; right: 0;
+border-top: 96px solid transparent;
+border-right: 144px solid #3b82f6;
+border-bottom: 96px solid transparent;
+border-top-right-radius: 0.375rem;
+border-bottom-right-radius: 0.375rem;
+}
+.flap-bottom {
+bottom: 0; left: 0;
+border-left: 144px solid transparent;
+border-bottom: 96px solid #1d4ed8;
+border-right: 144px solid transparent;
+border-bottom-left-radius: 0.375rem;
+border-bottom-right-radius: 0.375rem;
+z-index: 20;
+}
+.flap-top {
+top: 0; left: 0;
+border-left: 144px solid transparent;
+border-top: 100px solid #60a5fa;
+border-right: 144px solid transparent;
+border-top-left-radius: 0.375rem;
+border-top-right-radius: 0.375rem;
+z-index: 30;
+transform-origin: top;
+transition: transform 0.6s ease-in-out, z-index 0.6s step-end;
+}
+
+.envelope-wrapper.open .flap-top {
+transform: rotateX(180deg);
+z-index: 0;
+}
+.envelope-wrapper.open .letter-peeking {
+top: -60px;
+height: 110%;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+background: #f1f1f1;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+background: #3b82f6;
+border-radius: 3px;
+}
+</style>
+</head>
+<body>
+
+<audio id="bg-music" loop>
+<source src="https://files.catbox.moe/lsxrpm.mp3" type="audio/mpeg">
+</audio>
+
+<div id="hearts-container" class="absolute inset-0 pointer-events-none"></div>
+
+<div id="stage-password" class="stage active flex-col bg-blue-50">
+    <div class="bg-white p-10 rounded-2xl shadow-xl text-center border-2 border-blue-200 mx-4">
+        <h2 class="font-cursive text-4xl text-blue-600 mb-2">Enter Secret Code</h2>
+        <p class="text-gray-400 italic mb-6 text-sm">Clue: Our Anniversary</p>
+        <input type="password" id="pass-code" class="pass-input mb-6" maxlength="4" placeholder="****" onkeypress="handleEnter(event)">
+        <div id="pass-error" class="text-red-500 text-sm mb-4 opacity-0">Hah, maleh</div>
+        <button onclick="checkPassword()" class="block w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">Open</button>
+    </div>
+</div>
+
+<div id="stage-envelope" class="stage flex-col">
+<div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+<div class="envelope-back"></div>
+<div class="letter-peeking" onclick="openFullLetter(event)">
+<img src="https://www.transparentpng.com/download/flower/blue-flower-vector-png-21.png" class="absolute top-0 right-0 w-16 h-16 opacity-40 rotate-180" alt="flower">
+<div class="w-full text-center mt-4">
+<p class="font-cursive text-2xl text-blue-400">For You...</p>
+<div class="w-full h-0.5 bg-blue-50 mt-2"></div>
+<div class="w-full h-0.5 bg-blue-50 mt-1"></div>
+<div class="w-3/4 h-0.5 bg-blue-50 mt-1 mx-auto"></div>
+</div>
+</div>
+<div class="flap flap-left"></div>
+<div class="flap flap-right"></div>
+<div class="flap flap-bottom"></div>
+<div class="flap flap-top"></div>
+</div>
+<p id="click-hint" class="mt-16 text-blue-400 font-serif italic transition-opacity duration-500">Click to open</p>
+<p id="read-hint" class="mt-4 text-[#2563eb] font-serif font-bold animate-pulse opacity-0 transition-opacity duration-500">Click the letter to read</p>
+</div>
+
+<div id="stage-letter" class="stage">
+<div class="bg-[#fdfbf7] w-full max-w-2xl h-[80vh] md:h-auto md:max-h-[90vh] p-8 md:p-12 shadow-2xl rounded-lg relative overflow-y-auto custom-scrollbar border border-blue-100 mx-4">
+<div class="text-center space-y-6 relative z-10">
+<h1 class="font-cursive text-5xl md:text-6xl text-[#2563eb] mb-8 pt-4">To My Baby, Wife, BFF, and Bully</h1>
+<div class="font-serif text-lg md:text-xl leading-relaxed text-gray-700 space-y-6 text-left px-4 md:px-8">
+<p>At first, I never imagined that there will be someone who will come to my life and make it so much brighter, and that someone is you.</p>
+<p>From the moment we met, I was always shy and awkward. Every time that we had a date, I was always nervous not knowing what to say, but you always made it so easy for me. Being with you is like being wrapped in a warm blanket on a cold day - comforting, safe, and full of love.</p>
+<p>Your smile is so sweet but I'm sweeter (lah hehe).</p>
+<p>You are my girlfriend, my wife, my best friend forever, my soulmate, my honeybunchsugarplum, my karibal, my kaaway, and the most beautiful person that I will love forever. Thank you for loving me unconditionally, for accepting me with all my flaws, and for being the most amazing person in my life. I love you so much, and I want to spend the rest of my life with you.</p>
+<p>- Your Englishera Halata na Boyfriend</p>
+</div>
+<div class="pt-8 pb-4">
+<button onclick="setStage('stage-gifts')" class="px-8 py-3 bg-[#3b82f6] text-white font-serif text-xl rounded-full shadow-lg hover:bg-[#1d4ed8] hover:scale-105 transition-all duration-300 focus:outline-none ring-2 ring-offset-2 ring-blue-400">Continue</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="stage-gifts" class="stage flex-col">
+<h2 class="font-cursive text-5xl text-[#2563eb] mb-12 text-center px-4">Gifts for You</h2>
+<div class="flex flex-wrap justify-center gap-8 mb-12 px-4">
+<button onclick="openGift(1)" class="w-32 h-32 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center gap-2 border-2 border-blue-50 hover:border-blue-300 transition-all hover:scale-110 hover:rotate-3">
+<span class="text-4xl">📸</span>
+<span class="font-serif text-sm text-gray-600">Picture Tgt</span>
+</button>
+<button onclick="openGift(2)" class="w-32 h-32 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center gap-2 border-2 border-blue-50 hover:border-blue-300 transition-all hover:scale-110 hover:-rotate-3">
+<span class="text-4xl">🎵</span>
+<span class="font-serif text-sm text-gray-600">Song For You (Awit sau)</span>
+</button>
+<button onclick="openGift(3)" class="w-32 h-32 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center gap-2 border-2 border-blue-50 hover:border-blue-300 transition-all hover:scale-110 hover:rotate-3">
+<span class="text-4xl">💌</span>
+<span class="font-serif text-sm text-gray-600">Sweet (ko) Message</span>
+</button>
+</div>
+<button onclick="resetToHome()" class="px-8 py-2 text-gray-400 font-serif hover:text-[#2563eb] transition-colors">Return Home</button>
+</div>
+
+<div id="gift-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300" onclick="closeGift()">
+<div class="bg-[#fdfbf7] p-8 rounded-2xl max-w-lg w-full shadow-2xl relative mx-4 transform scale-90 transition-transform duration-300" id="gift-content-container" onclick="event.stopPropagation()">
+<button onclick="closeGift()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl">✕</button>
+<div id="gift-content"></div>
+</div>
+</div>
+
+<script>
+// --- IMAGES ---
+const PHOTOS = [
+"https://files.catbox.moe/hugkzw.jpg",
+"https://files.catbox.moe/w15j1f.jpg",
+"https://files.catbox.moe/nn9a3h.jpg",
+"https://files.catbox.moe/mhbvzj.jpg",
+"https://files.catbox.moe/rtwumm.jpg",
+"https://files.catbox.moe/zpcqdj.jpg",
+"https://files.catbox.moe/htbmoy.jpg",
+"https://files.catbox.moe/d49n6n.jpg"
+];
+
+const bgMusic = document.getElementById('bg-music');
+
+const heartsContainer = document.getElementById('hearts-container');
+for (let i = 0; i < 15; i++) {
+const heart = document.createElement('div');
+heart.classList.add('floating-heart');
+heart.innerHTML = '♥';
+heart.style.left = Math.random() * 100 + 'vw';
+heart.style.animationDuration = (15 + Math.random() * 10) + 's';
+heart.style.animationDelay = (Math.random() * 10) + 's';
+heartsContainer.appendChild(heart);
+}
+
+// Password Logic
+function handleEnter(e) {
+    if (e.key === 'Enter') {
+        checkPassword();
+    }
+}
+
+function checkPassword() {
+    const input = document.getElementById('pass-code').value;
+    const errorMsg = document.getElementById('pass-error');
+    if (input === '0227') {
+        setStage('stage-envelope');
+    } else {
+        errorMsg.style.opacity = '1';
+        setTimeout(() => { errorMsg.style.opacity = '0'; }, 2000);
+    }
+}
+
+function setStage(stageId) {
+document.querySelectorAll('.stage').forEach(el => {
+el.classList.remove('active');
+setTimeout(() => { if (!el.classList.contains('active')) el.style.display = 'none'; }, 800); 
+});
+const target = document.getElementById(stageId);
+target.style.display = 'flex';
+void target.offsetWidth;
+target.classList.add('active');
+}
+
+const envelope = document.getElementById('envelope');
+const clickHint = document.getElementById('click-hint');
+const readHint = document.getElementById('read-hint');
+let isEnvelopeOpen = false;
+
+function openEnvelope() {
+if (isEnvelopeOpen) return;
+isEnvelopeOpen = true;
+envelope.classList.add('open');
+clickHint.style.opacity = '0';
+setTimeout(() => { readHint.style.opacity = '1'; }, 800);
+}
+
+function openFullLetter(event) {
+event.stopPropagation();
+if (!isEnvelopeOpen) { openEnvelope(); return; }
+setStage('stage-letter');
+}
+
+const giftModal = document.getElementById('gift-modal');
+const giftContentContainer = document.getElementById('gift-content-container');
+const giftContent = document.getElementById('gift-content');
+
+function openGift(id) {
+let content = '';
+if (id === 1) {
+content = `
+<h3 class="font-cursive text-3xl text-[#2563eb] mb-4 text-center">Our Memories</h3>
+<div class="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+${PHOTOS.map(url => `<img src="${url}" class="w-full rounded-lg shadow-md border-2 border-white" alt="Us">`).join('')}
+</div>
+<p class="font-serif text-gray-600 italic mt-4 text-center">"Mwahhh😘 lah nakess"</p>
+`;
+} else if (id === 2) {
+bgMusic.play(); 
+content = `<h3 class="font-cursive text-4xl text-[#2563eb] mb-6 text-center">Song Started!</h3><div class="text-center font-serif text-gray-700 italic"><p class="text-xl"> I will dedicate this song to you, mahal ko </p><p class="mt-4">Keep looking through the gifts with the music playing!</p></div>`;
+} else if (id === 3) {
+content = `<h3 class="font-cursive text-3xl text-[#2563eb] mb-6 text-center">A Message</h3><div class="text-center space-y-4 font-serif text-gray-700"><p>Everything is better with you by my side, everything has been better since you came into my life. I love you so much.</p></div>`;
+}
+giftContent.innerHTML = content;
+giftModal.classList.remove('hidden');
+void giftModal.offsetWidth;
+giftModal.classList.remove('opacity-0');
+giftContentContainer.classList.remove('scale-90');
+giftContentContainer.classList.add('scale-100');
+}
+
+function closeGift() {
+giftModal.classList.add('opacity-0');
+giftContentContainer.classList.remove('scale-100');
+giftContentContainer.classList.add('scale-90');
+setTimeout(() => { giftModal.classList.add('hidden'); }, 300);
+}
+
+function resetToHome() {
+    location.reload(); 
+}
+</script>
+</body>
+</html>
