@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Be My Valentine?</title>
+<title>Our Valentine Keepsake</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 body {
@@ -80,75 +79,22 @@ display: flex;
 flex-direction: column;
 align-items: center;
 padding-top: 1rem;
-padding-left: 0.5rem;
-padding-right: 0.5rem;
 transition: all 0.8s ease-in-out;
 z-index: 5;
 cursor: pointer;
 }
 
-.flap {
-position: absolute;
-width: 0; height: 0;
-z-index: 10;
-pointer-events: none;
-}
-.flap-left {
-top: 0; left: 0;
-border-top: 96px solid transparent;
-border-left: 144px solid #3b82f6;
-border-bottom: 96px solid transparent;
-border-top-left-radius: 0.375rem;
-border-bottom-left-radius: 0.375rem;
-}
-.flap-right {
-top: 0; right: 0;
-border-top: 96px solid transparent;
-border-right: 144px solid #3b82f6;
-border-bottom: 96px solid transparent;
-border-top-right-radius: 0.375rem;
-border-bottom-right-radius: 0.375rem;
-}
-.flap-bottom {
-bottom: 0; left: 0;
-border-left: 144px solid transparent;
-border-bottom: 96px solid #1d4ed8;
-border-right: 144px solid transparent;
-border-bottom-left-radius: 0.375rem;
-border-bottom-right-radius: 0.375rem;
-z-index: 20;
-}
-.flap-top {
-top: 0; left: 0;
-border-left: 144px solid transparent;
-border-top: 100px solid #60a5fa;
-border-right: 144px solid transparent;
-border-top-left-radius: 0.375rem;
-border-top-right-radius: 0.375rem;
-z-index: 30;
-transform-origin: top;
-transition: transform 0.6s ease-in-out, z-index 0.6s step-end;
-}
+.flap { position: absolute; width: 0; height: 0; z-index: 10; pointer-events: none; }
+.flap-left { top: 0; left: 0; border-top: 96px solid transparent; border-left: 144px solid #3b82f6; border-bottom: 96px solid transparent; }
+.flap-right { top: 0; right: 0; border-top: 96px solid transparent; border-right: 144px solid #3b82f6; border-bottom: 96px solid transparent; }
+.flap-bottom { bottom: 0; left: 0; border-left: 144px solid transparent; border-bottom: 96px solid #1d4ed8; border-right: 144px solid transparent; z-index: 20; }
+.flap-top { top: 0; left: 0; border-left: 144px solid transparent; border-top: 100px solid #60a5fa; border-right: 144px solid transparent; z-index: 30; transform-origin: top; transition: transform 0.6s ease-in-out; }
 
-.envelope-wrapper.open .flap-top {
-transform: rotateX(180deg);
-z-index: 0;
-}
-.envelope-wrapper.open .letter-peeking {
-top: -60px;
-height: 110%;
-}
+.envelope-wrapper.open .flap-top { transform: rotateX(180deg); z-index: 0; }
+.envelope-wrapper.open .letter-peeking { top: -60px; height: 110%; }
 
-.custom-scrollbar::-webkit-scrollbar {
-width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-background: #f1f1f1;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-background: #3b82f6;
-border-radius: 3px;
-}
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
 </style>
 </head>
 <body>
@@ -192,45 +138,31 @@ border-radius: 3px;
 <p>- Your Englishera Halata na Boyfriend</p>
 </div>
 <div class="pt-8 pb-4">
-<button onclick="goToProposal()" class="px-8 py-3 bg-[#3b82f6] text-white font-serif text-xl rounded-full shadow-lg hover:bg-[#1d4ed8] hover:scale-105 transition-all duration-300 focus:outline-none ring-2 ring-offset-2 ring-blue-400">Continue</button>
+<button onclick="setStage('stage-gifts')" class="px-8 py-3 bg-[#3b82f6] text-white font-serif text-xl rounded-full shadow-lg hover:bg-[#1d4ed8] hover:scale-105 transition-all duration-300 focus:outline-none ring-2 ring-offset-2 ring-blue-400">
+See Gifts
+</button>
 </div>
 </div>
-</div>
-</div>
-
-<div id="stage-proposal" class="stage">
-<div class="bg-white/90 backdrop-blur-sm p-12 rounded-2xl shadow-xl text-center max-w-xl w-full border-2 border-blue-100 mx-4">
-<h2 class="font-cursive text-5xl md:text-6xl text-[#2563eb] mb-12">Will you be my Valentine?</h2>
-<div class="flex justify-center gap-8 items-center relative h-32">
-<button onclick="acceptProposal()" class="px-10 py-4 bg-[#3b82f6] text-white font-serif text-2xl rounded-full shadow-lg hover:bg-[#1d4ed8] hover:scale-110 transition-all duration-300 focus:outline-none ring-4 ring-blue-100 z-20">Yes!</button>
-<button id="no-btn" onmouseover="moveNoButton()" onclick="moveNoButton()" class="px-10 py-4 bg-gray-300 text-white font-serif text-2xl rounded-full shadow-lg cursor-not-allowed transition-all duration-200 z-10">No</button>
-</div>
-</div>
-</div>
-
-<div id="stage-celebration" class="stage bg-blue-50/80 backdrop-blur-md">
-<div class="text-center">
-<h1 class="font-cursive text-6xl md:text-8xl text-[#2563eb] mb-8 animate-bounce">Yeheyyyyyy I love you so much, babyyyy!! lah sumisigaw ka</h1>
 </div>
 </div>
 
 <div id="stage-gifts" class="stage flex-col">
-<h2 class="font-cursive text-5xl text-[#2563eb] mb-12 text-center px-4">Gifts for You</h2>
+<h2 class="font-cursive text-5xl text-[#2563eb] mb-12 text-center px-4">Our Memories</h2>
 <div class="flex flex-wrap justify-center gap-8 mb-12 px-4">
 <button onclick="openGift(1)" class="w-32 h-32 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center gap-2 border-2 border-blue-50 hover:border-blue-300 transition-all hover:scale-110 hover:rotate-3">
 <span class="text-4xl">📸</span>
-<span class="font-serif text-sm text-gray-600">Picture Tgt</span>
+<span class="font-serif text-sm text-gray-600 text-center px-1">Pictures</span>
 </button>
 <button onclick="openGift(2)" class="w-32 h-32 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center gap-2 border-2 border-blue-50 hover:border-blue-300 transition-all hover:scale-110 hover:-rotate-3">
 <span class="text-4xl">🎵</span>
-<span class="font-serif text-sm text-gray-600">Song For You (Awit sau)</span>
+<span class="font-serif text-sm text-gray-600 text-center px-1">Play Music</span>
 </button>
 <button onclick="openGift(3)" class="w-32 h-32 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center gap-2 border-2 border-blue-50 hover:border-blue-300 transition-all hover:scale-110 hover:rotate-3">
 <span class="text-4xl">💌</span>
-<span class="font-serif text-sm text-gray-600">Sweet (ko) Message</span>
+<span class="font-serif text-sm text-gray-600 text-center px-1">Message</span>
 </button>
 </div>
-<button onclick="resetToHome()" class="px-8 py-2 text-gray-400 font-serif hover:text-[#2563eb] transition-colors">Return Home</button>
+<button onclick="resetToHome()" class="px-8 py-2 text-gray-400 font-serif hover:text-[#2563eb] transition-colors">Back to Start</button>
 </div>
 
 <div id="gift-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300" onclick="closeGift()">
@@ -241,7 +173,6 @@ border-radius: 3px;
 </div>
 
 <script>
-// --- IMAGES ---
 const PHOTOS = [
     "https://files.catbox.moe/hugkzw.jpg",
     "https://files.catbox.moe/w15j1f.jpg",
@@ -255,110 +186,92 @@ const PHOTOS = [
 
 const bgMusic = document.getElementById('bg-music');
 
+// --- Floating Hearts ---
 const heartsContainer = document.getElementById('hearts-container');
 for (let i = 0; i < 15; i++) {
-const heart = document.createElement('div');
-heart.classList.add('floating-heart');
-heart.innerHTML = '♥';
-heart.style.left = Math.random() * 100 + 'vw';
-heart.style.animationDuration = (15 + Math.random() * 10) + 's';
-heart.style.animationDelay = (Math.random() * 10) + 's';
-heartsContainer.appendChild(heart);
+    const heart = document.createElement('div');
+    heart.classList.add('floating-heart');
+    heart.innerHTML = '♥';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = (15 + Math.random() * 10) + 's';
+    heart.style.animationDelay = (Math.random() * 10) + 's';
+    heartsContainer.appendChild(heart);
 }
 
+// --- Stage Management ---
 function setStage(stageId) {
-document.querySelectorAll('.stage').forEach(el => {
-el.classList.remove('active');
-setTimeout(() => { if (!el.classList.contains('active')) el.style.display = 'none'; }, 800); 
-});
-const target = document.getElementById(stageId);
-target.style.display = 'flex';
-void target.offsetWidth;
-target.classList.add('active');
+    document.querySelectorAll('.stage').forEach(el => {
+        el.classList.remove('active');
+        setTimeout(() => { if (!el.classList.contains('active')) el.style.display = 'none'; }, 800); 
+    });
+    const target = document.getElementById(stageId);
+    target.style.display = 'flex';
+    void target.offsetWidth;
+    target.classList.add('active');
 }
 
+// --- Envelope Logic ---
 const envelope = document.getElementById('envelope');
 const clickHint = document.getElementById('click-hint');
 const readHint = document.getElementById('read-hint');
 let isEnvelopeOpen = false;
 
 function openEnvelope() {
-if (isEnvelopeOpen) return;
-isEnvelopeOpen = true;
-envelope.classList.add('open');
-clickHint.style.opacity = '0';
-setTimeout(() => { readHint.style.opacity = '1'; }, 800);
+    if (isEnvelopeOpen) return;
+    isEnvelopeOpen = true;
+    envelope.classList.add('open');
+    clickHint.style.opacity = '0';
+    setTimeout(() => { readHint.style.opacity = '1'; }, 800);
 }
 
 function openFullLetter(event) {
-event.stopPropagation();
-if (!isEnvelopeOpen) { openEnvelope(); return; }
-setStage('stage-letter');
+    event.stopPropagation();
+    if (!isEnvelopeOpen) { openEnvelope(); return; }
+    setStage('stage-letter');
 }
 
-function goToProposal() { setStage('stage-proposal'); }
-
-function moveNoButton() {
-const btn = document.getElementById('no-btn');
-const x = Math.random() * 200 - 100;
-const y = Math.random() * 200 - 100;
-btn.style.transform = `translate(${x}px, ${y}px)`;
-}
-
-function acceptProposal() {
-setStage('stage-celebration');
-const duration = 3000;
-const end = Date.now() + duration;
-(function frame() {
-confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#3b82f6', '#93c5fd', '#ffffff'] });
-confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#3b82f6', '#93c5fd', '#ffffff'] });
-if (Date.now() < end) { requestAnimationFrame(frame); } 
-else { setTimeout(() => { setStage('stage-gifts'); }, 2000); }
-}());
-}
-
+// --- Gifts Logic ---
 const giftModal = document.getElementById('gift-modal');
 const giftContentContainer = document.getElementById('gift-content-container');
 const giftContent = document.getElementById('gift-content');
 
 function openGift(id) {
-let content = '';
-if (id === 1) {
-    // Gallery
-    content = `
-    <h3 class="font-cursive text-3xl text-[#2563eb] mb-4 text-center">Our Memories</h3>
-    <div class="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-        ${PHOTOS.map(url => `<img src="${url}" class="w-full rounded-lg shadow-md border-2 border-white" alt="Us">`).join('')}
-    </div>
-    <p class="font-serif text-gray-600 italic mt-4 text-center">"Mwahhh😘 lah nakess"</p>
-    `;
-} else if (id === 2) {
-bgMusic.play(); 
-content = `<h3 class="font-cursive text-4xl text-[#2563eb] mb-6 text-center">Song Started!</h3><div class="text-center font-serif text-gray-700 italic"><p class="text-xl"> I will dedicate this song to you, mahal ko </p><p class="mt-4">Keep looking through the gifts with the music playing!</p></div>`;
-} else if (id === 3) {
-content = `<h3 class="font-cursive text-3xl text-[#2563eb] mb-6 text-center">A Message</h3><div class="text-center space-y-4 font-serif text-gray-700"><p>Everything is better with you by my side, everything has been better since you came into my life. I love you so much.</p></div>`;
-}
-giftContent.innerHTML = content;
-giftModal.classList.remove('hidden');
-void giftModal.offsetWidth;
-giftModal.classList.remove('opacity-0');
-giftContentContainer.classList.remove('scale-90');
-giftContentContainer.classList.add('scale-100');
+    let content = '';
+    if (id === 1) {
+        content = `
+        <h3 class="font-cursive text-3xl text-[#2563eb] mb-4 text-center">Our Memories</h3>
+        <div class="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+            ${PHOTOS.map(url => `<img src="${url}" class="w-full rounded-lg shadow-md border-2 border-white" alt="Us">`).join('')}
+        </div>
+        <p class="font-serif text-gray-600 italic mt-4 text-center">"Mwahhh😘 lah nakess"</p>
+        `;
+    } else if (id === 2) {
+        bgMusic.play(); 
+        content = `<h3 class="font-cursive text-4xl text-[#2563eb] mb-6 text-center">Playing Song...</h3><div class="text-center font-serif text-gray-700 italic"><p class="text-xl">Dedicated to you, mahal ko ❤️</p></div>`;
+    } else if (id === 3) {
+        content = `<h3 class="font-cursive text-3xl text-[#2563eb] mb-6 text-center">A Message</h3><div class="text-center space-y-4 font-serif text-gray-700"><p>Everything is better with you by my side, everything has been better since you came into my life. I love you so much.</p></div>`;
+    }
+    giftContent.innerHTML = content;
+    giftModal.classList.remove('hidden');
+    void giftModal.offsetWidth;
+    giftModal.classList.remove('opacity-0');
+    giftContentContainer.classList.remove('scale-90');
+    giftContentContainer.classList.add('scale-100');
 }
 
 function closeGift() {
-giftModal.classList.add('opacity-0');
-giftContentContainer.classList.remove('scale-100');
-giftContentContainer.classList.add('scale-90');
-setTimeout(() => { giftModal.classList.add('hidden'); }, 300);
+    giftModal.classList.add('opacity-0');
+    giftContentContainer.classList.remove('scale-100');
+    giftContentContainer.classList.add('scale-90');
+    setTimeout(() => { giftModal.classList.add('hidden'); }, 300);
 }
 
 function resetToHome() {
-isEnvelopeOpen = false;
-envelope.classList.remove('open');
-readHint.style.opacity = '0';
-clickHint.style.opacity = '1';
-setStage('stage-envelope');
+    isEnvelopeOpen = false;
+    envelope.classList.remove('open');
+    readHint.style.opacity = '0';
+    clickHint.style.opacity = '1';
+    setStage('stage-envelope');
 }
 </script>
 </body>
